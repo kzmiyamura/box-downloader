@@ -1,0 +1,6 @@
+auth/
+.env
+node_modules/
+temp/
+config.json
+dist/
