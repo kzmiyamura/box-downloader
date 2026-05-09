@@ -70,12 +70,14 @@ async function checkForErrors(page: Page, errorLogDir: string): Promise<void> {
   // ページ本文のテキストでエラーを検知
   const bodyText = (await page.locator('body').textContent()) ?? '';
   const errorPatterns: Array<{ pattern: string; label: string }> = [
-    { pattern: 'Link Not Found',                 label: 'リンクが見つかりません' },
-    { pattern: 'This shared link has expired',   label: '共有リンクの有効期限切れ' },
-    { pattern: 'This link has been disabled',    label: '共有リンクが無効化されています' },
-    { pattern: 'The shared link you are trying', label: 'リンクエラー' },
-    { pattern: 'リンクが見つかりません',            label: 'リンクが見つかりません' },
-    { pattern: 'リンクの有効期限が切れています',     label: 'リンクの期限切れ' },
+    { pattern: 'Link Not Found',                                        label: 'リンクが見つかりません' },
+    { pattern: 'This shared link has expired',                          label: '共有リンクの有効期限切れ' },
+    { pattern: 'This link has been disabled',                           label: '共有リンクが無効化されています' },
+    { pattern: 'The shared link you are trying',                        label: 'リンクエラー' },
+    { pattern: 'shared file or folder link has been removed',           label: '共有リンクが削除または無効です' },
+    { pattern: 'is unavailable to you',                                 label: '共有リンクにアクセスできません' },
+    { pattern: 'リンクが見つかりません',                                   label: 'リンクが見つかりません' },
+    { pattern: 'リンクの有効期限が切れています',                            label: 'リンクの期限切れ' },
   ];
 
   for (const { pattern, label } of errorPatterns) {
