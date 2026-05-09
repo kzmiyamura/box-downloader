@@ -1,8 +1,11 @@
 import { google } from 'googleapis';
-import { JWT } from 'google-auth-library';
+import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
 import * as path from 'path';
-import { findServiceAccountKey } from './config';
+import { loadConfig } from './config';
+
+const TOKEN_PATH = path.join(process.cwd(), 'auth', 'drive-token.json');
+const REDIRECT_URI = 'http://localhost:3000/callback';
 
 /** 拡張子からMIMEタイプを取得する */
 function getMimeType(filePath: string): string {
@@ -24,24 +27,32 @@ function getMimeType(filePath: string): string {
   return mimeMap[ext] ?? 'application/octet-stream';
 }
 
-/** サービスアカウントで認証したJWTを生成する */
-function createAuth(): JWT {
-  const keyPath = findServiceAccountKey();
-  const keyFile = JSON.parse(fs.readFileSync(keyPath, 'utf-8')) as {
-    client_email: string;
-    private_key: string;
-  };
+/** 保存済みトークンを使ってOAuth2クライアントを生成する */
+function createOAuthClient(): OAuth2Client {
+  const config = loadConfig();
 
-  return new JWT({
-    email: keyFile.client_email,
-    key: keyFile.private_key,
-    scopes: ['https://www.googleapis.com/auth/drive'],
+  if (!fs.existsSync(TOKEN_PATH)) {
+    throw new Error(
+      'Googleドライブの認証トークンが見つかりません。先に setup-drive-auth.bat（Mac: setup-drive-auth.sh）を実行してください。'
+    );
+  }
+
+  const tokens = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'));
+  const client = new OAuth2Client(config.oauthClientId, config.oauthClientSecret, REDIRECT_URI);
+  client.setCredentials(tokens);
+
+  // アクセストークン更新時にファイルへ保存
+  client.on('tokens', (newTokens) => {
+    const merged = { ...tokens, ...newTokens };
+    fs.writeFileSync(TOKEN_PATH, JSON.stringify(merged, null, 2));
   });
+
+  return client;
 }
 
 /** ファイルをGoogleドライブの指定フォルダへアップロードし、Web表示URLを返す */
 export async function uploadToDrive(filePath: string, folderId: string): Promise<string> {
-  const auth = createAuth();
+  const auth = createOAuthClient();
   const drive = google.drive({ version: 'v3', auth });
 
   const fileName = path.basename(filePath);

@@ -28,6 +28,12 @@ export function loadConfig(): Config {
   if (!Array.isArray(config.waitRange) || config.waitRange.length !== 2) {
     throw new Error('config.json: waitRange が正しく設定されていません。例: [3000, 7000]');
   }
+  if (!config.oauthClientId) {
+    throw new Error('config.json: oauthClientId が設定されていません。');
+  }
+  if (!config.oauthClientSecret) {
+    throw new Error('config.json: oauthClientSecret が設定されていません。');
+  }
 
   return config;
 }

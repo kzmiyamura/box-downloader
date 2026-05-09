@@ -1,5 +1,7 @@
 {
   "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID_HERE/edit",
   "driveFolderId": "YOUR_GOOGLE_DRIVE_FOLDER_ID_HERE",
-  "waitRange": [3000, 7000]
+  "waitRange": [3000, 7000],
+  "oauthClientId": "YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+  "oauthClientSecret": "YOUR_OAUTH_CLIENT_SECRET"
 }
