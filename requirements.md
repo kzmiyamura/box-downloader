@@ -30,6 +30,10 @@ driveFolderId: ファイルを保存するGoogleドライブのフォルダID
 
 waitRange: 処理間の待機時間（ミリ秒、例: [3000, 7000]）
 
+oauthClientId: GoogleドライブアップロードのOAuth2クライアントID
+
+oauthClientSecret: GoogleドライブアップロードのOAuth2クライアントシークレット
+
 B. スプレッドシート構造
 
 以下の3列構成（1行目はヘッダー）。
@@ -66,15 +70,19 @@ C. Googleドライブ転送
 
 アップロード成功後、Web表示用URLをスプレッドシートの driveurl 列に書き戻す。
 
-D. Windows運用サポート
+D. 運用サポートスクリプト
 
-setup.bat: npm install と playwright install を行う環境構築用。
+setup.bat / setup.sh: npm install と playwright install を行う環境構築用。
 
-run.bat: npx tsx src/main.ts を実行し、終了後に pause する実行用。
+setup-drive-auth.bat / setup-drive-auth.sh: GoogleドライブのOAuth2認証を行う初回セットアップ用。ブラウザでGoogleアカウントにログインしてトークンを取得・保存する。
+
+run.bat / run.sh: npx tsx src/main.ts を実行し、終了後に一時停止する実行用。
 
 5. 実装ルール (Claude Codeへの指示)
 
-サービスアカウント認証を使用し、auth/ フォルダ内のJSON鍵を読み込むこと。
+認証方式は用途によって使い分けること。
+- Googleスプレッドシート: サービスアカウント認証（auth/ フォルダ内のJSON鍵を読み込む）
+- Googleドライブアップロード: OAuth2認証（初回のみ setup-drive-auth.bat / setup-drive-auth.sh を実行してトークンを取得・保存する）
 
 .gitignore に auth/, .env, node_modules/, temp/, config.json を含めること（config.json.example を提供すること）。
 
