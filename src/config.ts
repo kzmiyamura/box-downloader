@@ -62,11 +62,23 @@ export function findServiceAccountKey(): string {
   if (files.length === 0) {
     throw new Error('auth/ フォルダにJSONキーファイルが見つかりません。');
   }
-  if (files.length > 1) {
-    console.warn(`警告: auth/ フォルダに複数のJSONファイルがあります。${files[0]} を使用します。`);
+
+  // type: "service_account" を持つファイルをサービスアカウントキーとして判別
+  for (const file of files) {
+    const filePath = path.join(authDir, file);
+    try {
+      const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      if (content.type === 'service_account') {
+        return filePath;
+      }
+    } catch {
+      // 解析失敗はスキップ
+    }
   }
 
-  return path.join(authDir, files[0]);
+  throw new Error(
+    'auth/ フォルダにサービスアカウントキー（type: "service_account"）が見つかりません。'
+  );
 }
 
 /** waitRange に基づくランダム待機 */
